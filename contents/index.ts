@@ -19,10 +19,10 @@ const highlightAll = async () => {
       e.replaceWith(e.textContent ?? "")
     })
 
-    document.querySelectorAll("p").forEach((e) => {
+    document.querySelectorAll("p, span").forEach((e) => {
       const text = e.textContent
       if (text) {
-        console.log({ sortByLength })
+        console.log({ text })
 
         const regex = sortByLength.join("|")
         const highlight = text.replace(new RegExp(`${regex}`, "g"), (str) => {
@@ -31,7 +31,7 @@ const highlightAll = async () => {
             bgColor,
             "#fff",
             "#111"
-          )};padding:3px 4px">${str}</a>`
+          )};padding:3px 4px;text-decoration:none;">${str}</a>`
         })
 
         e.innerHTML = highlight
@@ -40,14 +40,21 @@ const highlightAll = async () => {
   }
 }
 
-/** Highlight new word (Alt + Ctrl + N) */
 document.onkeydown = async (e) => {
-  if (e.altKey && e.ctrlKey && e.key === "Dead") {
-    const text = document.getSelection()
-    if (text !== null && text.rangeCount > 0) {
-      const selection = text.getRangeAt(0).toString()
-      console.log({ select: selection })
-      await upsertStorage(selection)()
+  if (e.altKey && e.ctrlKey) {
+    console.log({ key: e.key })
+
+    if (e.key === "Dead") {
+      /** Highlight new word (Alt + Ctrl + N) */
+      const text = document.getSelection()
+      if (text !== null && text.rangeCount > 0) {
+        const selection = text.getRangeAt(0).toString()
+        console.log({ select: selection })
+        await upsertStorage(selection)()
+        highlightAll()
+      }
+    } else if (e.key === "µ") {
+      /** Reload word (for SPA apps without SSR) (Alt + Ctrl + M) */
       highlightAll()
     }
   }
