@@ -18,19 +18,44 @@ export const getAllChromeWord =
   }
 
 export const upsertChromeWord =
-  (text: string, id_chrome_word?: string) =>
-  async (): Promise<ChromeWord | null> => {
-    const { data, error } = await supabase
+  (text: string) => async (): Promise<ChromeWord | null> => {
+    const { data: searchWord, error: searchError } = await supabase
       .from<ChromeWord>(CHROME_WORD_TABLE)
-      .upsert({
-        id_chrome_word: id_chrome_word ?? nanoid(),
-        text
-      })
-      .single()
+      .select()
+      .eq("text", text)
+      .limit(1)
 
-    if (error) {
-      console.error(error)
+    if (searchError) {
+      console.error(searchError)
     }
 
-    return data
+    if (searchWord && searchWord.length > 0) {
+      const { data, error } = await supabase
+        .from<ChromeWord>(CHROME_WORD_TABLE)
+        .update({
+          is_active: !searchWord[0].is_active
+        })
+        .eq("id_chrome_word", searchWord[0].id_chrome_word)
+        .single()
+
+      if (error) {
+        console.error(error)
+      }
+
+      return data
+    } else {
+      const { data, error } = await supabase
+        .from<ChromeWord>(CHROME_WORD_TABLE)
+        .insert({
+          id_chrome_word: nanoid(),
+          text
+        })
+        .single()
+
+      if (error) {
+        console.error(error)
+      }
+
+      return data
+    }
   }
