@@ -10,6 +10,7 @@
     "build": "plasmo build"
   },
   "dependencies": {
+    "@plasmohq/storage": "^0.12.2",
     "@supabase/supabase-js": "^1.35.4",
     "nanoid": "^4.0.0",
     "plasmo": "0.45.2",
