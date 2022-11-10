@@ -182,7 +182,7 @@ document.onkeydown = async (e) => {
 const style = document.createElement("style")
 style.appendChild(
   document.createTextNode(`
-#${POPUP_ID} { position: absolute; padding: 12px 16px; background: #f9fafb; border-radius: 8px; border: 1px solid #fccebd; }
+#${POPUP_ID} { position: absolute; z-index: 9999; padding: 12px 16px; background: #f9fafb; border-radius: 0 8px 8px 8px; border: 1px solid #111; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
 #${POPUP_ID}:hover { cursor: pointer; background: #fff; }
   
 .${OVERVIEW_ID} { display: flex; flex-wrap: wrap; column-gap: 6px; max-width: 33vw; position: fixed; bottom: 0; right: 0; padding: 12px 16px; background: white; border-radius: 8px 0 0 0; border: 1px solid rgb(125 211 252); }
@@ -223,7 +223,7 @@ document.addEventListener("selectionchange", async () => {
     const newDiv = document.createElement("div")
     newDiv.id = `${POPUP_ID}`
     newDiv.style.top = `${(mouseY ?? 0) + 16}px`
-    newDiv.style.left = `${(mouseX ?? 0) - 8}px`
+    newDiv.style.left = `${(mouseX ?? 0) - 16}px`
     newDiv.textContent = `${selected}`
     newDiv.addEventListener("click", async () => {
       await saveSelection(selected)
