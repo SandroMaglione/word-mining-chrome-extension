@@ -6,7 +6,12 @@ import {
   mapColorToWord,
   pickTextColorBasedOnBgColorAdvanced
 } from "~lib/colors"
-import { OVERVIEW_ID, POPUP_ID, TAG_CLASS } from "~lib/constants"
+import {
+  OVERVIEW_ID,
+  POPUP_ID,
+  RELOAD_BUTTON_ID,
+  TAG_CLASS
+} from "~lib/constants"
 import { getStorage, upsertStorage } from "~lib/storage"
 
 let mouseX: number | null = null
@@ -151,21 +156,25 @@ const highlightAll = async () => {
       []
     )(document.body)
 
-    // if (foundWords.length > 0) {
-    //   const element =
-    //     document.getElementById(OVERVIEW_ID) ?? document.createElement("p")
+    if (foundWords.length > 0) {
+      const element =
+        document.getElementById(OVERVIEW_ID) ?? document.createElement("p")
 
-    //   foundWords.forEach(({ id, word }) => {
-    //     const a = document.createElement("a")
-    //     a.href = `#${id}`
-    //     a.textContent = word
-    //     element.appendChild(a)
-    //   })
+      element.textContent = `${foundWords.length}`
+      element.classList.add(`${OVERVIEW_ID}`)
+      element.id = `${OVERVIEW_ID}`
 
-    //   element.classList.add(`${OVERVIEW_ID}`)
-    //   element.id = `${OVERVIEW_ID}`
-    //   document.body.appendChild(element)
-    // }
+      const reloadButton =
+        document.getElementById(RELOAD_BUTTON_ID) ??
+        document.createElement("button")
+      reloadButton.id = `${RELOAD_BUTTON_ID}`
+      reloadButton.addEventListener("click", () => {
+        highlightAll()
+      })
+
+      element.appendChild(reloadButton)
+      document.body.appendChild(element)
+    }
   }
 }
 
@@ -184,14 +193,15 @@ style.appendChild(
   document.createTextNode(`
 #${POPUP_ID} { position: absolute; z-index: 9999; padding: 12px 16px; background: #f9fafb; border-radius: 0 8px 8px 8px; border: 1px solid #111; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
 #${POPUP_ID}:hover { cursor: pointer; background: #fff; }
+#${RELOAD_BUTTON_ID} { border: 1px solid rgba(0, 0, 0, 0.6); display: block; padding: 0; margin: 0; outline: 0; position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 100%; filter: brightness(0.90); background: #fff; }
+#${RELOAD_BUTTON_ID}:hover { cursor: pointer; filter: brightness(1.25); transform: scale(1.1); }
+#${RELOAD_BUTTON_ID}:active { filter: brightness(1); transform: scale(0.95); }
   
-.${OVERVIEW_ID} { display: flex; flex-wrap: wrap; column-gap: 6px; max-width: 33vw; position: fixed; bottom: 0; right: 0; padding: 12px 16px; background: white; border-radius: 8px 0 0 0; border: 1px solid rgb(125 211 252); }
+.${OVERVIEW_ID} { display: flex; z-index: 9999; position: relative; flex-wrap: wrap; column-gap: 6px; max-width: 33vw; min-width: 30px; position: fixed; bottom: 12px; right: 0; font-weight: 900; padding: 12px 16px; background: white; border-radius: 8px 0 0 8px; border: 1px solid #111; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
 .${TAG_CLASS}:hover { filter: brightness(1.25); }
 `)
 )
 document.head.appendChild(style)
-
-highlightAll()
 
 document.addEventListener("mousemove", (event) => {
   mouseX = event.pageX
@@ -233,6 +243,8 @@ document.addEventListener("selectionchange", async () => {
   }
 })
 
-setTimeout(() => {
-  highlightAll()
-}, 3000)
+highlightAll()
+
+// setTimeout(() => {
+//   highlightAll()
+// }, 3000)
