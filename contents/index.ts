@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid"
+import { isKanji } from "wanakana"
 
 import { Storage } from "@plasmohq/storage"
 
@@ -7,6 +8,7 @@ import {
   pickTextColorBasedOnBgColorAdvanced
 } from "~lib/colors"
 import {
+  KANJI_PANEL_ID,
   OVERVIEW_ID,
   POPUP_ID,
   RELOAD_BUTTON_ID,
@@ -19,9 +21,21 @@ let mouseY: number | null = null
 
 const storage = new Storage()
 
+const uniqueKanjiList: string[] = []
+
 type FoundWord = {
   id: string
   word: string
+}
+
+const extractUniqueKanji = (text: string): void => {
+  const letters = text.split("")
+  for (let i = 0; i < letters.length; i++) {
+    const letter = letters[i]
+    if (isKanji(letter) && !uniqueKanjiList.includes(letter)) {
+      uniqueKanjiList.push(letter)
+    }
+  }
 }
 
 const saveSelection = async (selection: string) => {
@@ -46,6 +60,9 @@ const matchNodeText =
     colorMap: Map<string, string>
     foundWords: FoundWord[]
   }): [string | undefined, FoundWord[]] => {
+    // Side effect (extract unique kanji)
+    extractUniqueKanji(text ?? "")
+
     // const text = element.textContent
     const textMatch = text?.match(searchRegex) ?? []
 
@@ -176,6 +193,18 @@ const highlightAll = async () => {
       document.body.appendChild(element)
     }
   }
+
+  // const kanjiPanel =
+  //   document.getElementById(KANJI_PANEL_ID) ?? document.createElement("div")
+  // kanjiPanel.id = `${KANJI_PANEL_ID}`
+  // uniqueKanjiList.forEach((kanji) => {
+  //   const kanjiElement = document.createElement("p")
+  //   kanjiElement.textContent = kanji
+  //   kanjiPanel.appendChild(kanjiElement)
+  // })
+
+  // document.body.appendChild(kanjiPanel)
+  console.log({ uniqueKanjiList })
 }
 
 document.onkeydown = async (e) => {
@@ -196,6 +225,7 @@ style.appendChild(
 #${RELOAD_BUTTON_ID} { border: 1px solid rgba(0, 0, 0, 0.6); display: block; padding: 0; margin: 0; outline: 0; position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 100%; filter: brightness(0.90); background: #fff; }
 #${RELOAD_BUTTON_ID}:hover { cursor: pointer; filter: brightness(1.25); transform: scale(1.1); }
 #${RELOAD_BUTTON_ID}:active { filter: brightness(1); transform: scale(0.95); }
+#${KANJI_PANEL_ID} { position: fixed; z-index: 9999; height: 100%; overflow-y: auto; align-items: center; text-align: center; font-size: 42px; font-weight: light; inset: 0; background: white; padding: 24px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
   
 .${OVERVIEW_ID} { display: flex; z-index: 9999; position: relative; flex-wrap: wrap; column-gap: 6px; max-width: 33vw; min-width: 30px; position: fixed; bottom: 12px; right: 0; font-weight: 900; padding: 12px 16px; background: white; border-radius: 8px 0 0 8px; border: 1px solid #111; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
 .${TAG_CLASS}:hover { filter: brightness(1.25); }
